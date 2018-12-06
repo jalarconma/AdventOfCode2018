@@ -7,13 +7,15 @@ public class Puzzle5 extends Puzzle {
 	
 	private static final int LOWER_UPPER_DIFF = 32;
 	
+	private LinkedList<Character> reducedList = new LinkedList<>();
+	
 	Puzzle5 (String input) {
 		super(input);
 	}
 
 	@Override
 	public String solvePuzzle() {
-		List<Character> solution = null;
+		LinkedList<Character> solution = null;
 		
 		if (this.input == null) {
 			return NO_SOLVED;
@@ -22,7 +24,7 @@ public class Puzzle5 extends Puzzle {
 		char[] inputArray = this.input.toCharArray();
 		LinkedList<Character> list = arrayToList(inputArray);
 		
-		solution = reduceInput(list, 0);
+		solution = reduceInput2(list);
 		
 	    System.out.println("Cantidad de elementos restantes: " + solution.size());
 		return solution.toString();
@@ -43,45 +45,86 @@ public class Puzzle5 extends Puzzle {
 		return true;
 	}
 	
-	private LinkedList<Character> reduceInput(LinkedList<Character> input, int idx) {
-		boolean removeAtIndex = false;
-		int index;
+	private LinkedList<Character> reduceInput2(LinkedList<Character> input) {
 		char value;
 		char nextValue;
-		int nextIndex;
 		
-		for (index = idx; index < input.size(); index++) {
-			value = input.get(index);
-			nextValue = index < input.size() - 1 ? input.get(index + 1) : '\0';
-			
-			if (react(value, nextValue)) {
-				removeAtIndex = true;
-				break;
-			}
+		if (input.isEmpty()) {
+			return input;
 		}
 		
-		if (removeAtIndex) {
-			input.remove(index);
-			input.remove(index);
-			
-			nextIndex = index == 0 ? index + 1 : index - 1; 
-			value = input.get(index);
-			nextValue = index < input.size() - 1 ? input.get(nextIndex) : '\0';
-			
-			while(react(value, nextValue)) {
-				input.remove(index);
-				input.remove(index);
-				
-				value = input.get(index);
-				nextValue = index < input.size() - 1 ? input.get(nextIndex) : '\0';
-			}
-			
-			return reduceInput((LinkedList<Character>) input.clone(), index);
+		value = input.pop();
+		nextValue = !input.isEmpty() ? input.pop() : '\0';
+		
+		if (!react(value, nextValue)) {
+			applyReductionOnList(value, nextValue);
+			return reduceInput2(input);
 		}
 		
-		return input;
+		return reduceInput2(input);
 	}
 	
+	private void applyReductionOnList(char first, char last) {
+		char firstReducedValue;
+		
+		if (reducedList.isEmpty()) {
+			
+			if (first != '\0') {
+				reducedList.push(first);
+			}
+
+			if (last != '\0') {
+				reducedList.push(last);
+			}
+			
+			return;
+		}
+		
+		firstReducedValue = reducedList.pop();
+		
+		if (!react(first, firstReducedValue)) {
+			
+			if (firstReducedValue != '\0') {
+				reducedList.push(firstReducedValue);
+			}
+
+			if (first != '\0') {
+				reducedList.push(first);
+			}
+			
+			if (last != '\0') {
+				reducedList.push(last);
+			}
+			
+			return;
+		}
+		
+		if (reducedList.isEmpty()) {
+			
+			if (last != '\0') {
+				reducedList.push(last);
+			}
+			
+			return;
+		}
+		
+		firstReducedValue = reducedList.pop();
+		
+		if (!react(last, firstReducedValue)) {
+			
+			if (firstReducedValue != '\0') {
+				reducedList.push(firstReducedValue);
+			}
+
+			if (last != '\0') {
+				reducedList.push(last);
+			}
+			
+			return;
+		}
+		
+	}
+
 	private LinkedList<Character> arrayToList(char[] inputArray) {
 		LinkedList<Character> list = new LinkedList<>();
 		
