@@ -1,7 +1,6 @@
 package main;
 
 import java.util.LinkedList;
-import java.util.List;
 
 public class Puzzle5 extends Puzzle {
 	
@@ -15,8 +14,6 @@ public class Puzzle5 extends Puzzle {
 
 	@Override
 	public String solvePuzzle() {
-		LinkedList<Character> solution = null;
-		
 		if (this.input == null) {
 			return NO_SOLVED;
 		}
@@ -24,10 +21,10 @@ public class Puzzle5 extends Puzzle {
 		char[] inputArray = this.input.toCharArray();
 		LinkedList<Character> list = arrayToList(inputArray);
 		
-		solution = reduceInput2(list);
+		reduceInput2(list);
 		
-	    System.out.println("Cantidad de elementos restantes: " + solution.size());
-		return solution.toString();
+	    System.out.println("Cantidad de elementos restantes: " + reducedList.size());
+		return reducedList.toString();
 	}
 
 	private boolean react(char first, char second) {
@@ -48,20 +45,25 @@ public class Puzzle5 extends Puzzle {
 	private LinkedList<Character> reduceInput2(LinkedList<Character> input) {
 		char value;
 		char nextValue;
+		boolean scanning = true;
 		
-		if (input.isEmpty()) {
-			return input;
+		while (scanning) {
+			
+			if (input.isEmpty()) {
+				scanning = false;
+			}
+			
+			if (scanning) {
+				value = input.pop();
+				nextValue = !input.isEmpty() ? input.pop() : '\0';
+				
+				if (!react(value, nextValue)) {
+					applyReductionOnList(value, nextValue);
+				}
+			}
 		}
 		
-		value = input.pop();
-		nextValue = !input.isEmpty() ? input.pop() : '\0';
-		
-		if (!react(value, nextValue)) {
-			applyReductionOnList(value, nextValue);
-			return reduceInput2(input);
-		}
-		
-		return reduceInput2(input);
+		return input;
 	}
 	
 	private void applyReductionOnList(char first, char last) {
